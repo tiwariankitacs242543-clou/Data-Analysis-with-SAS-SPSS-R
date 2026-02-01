@@ -1,1 +1,62 @@
+data <- read.csv(file.choose(), stringsAsFactors = TRUE)
+
+str(data)
+head(data)
+
+factor_cols <- c("Choose.your.gender",
+                 "What.is.your.course.",
+                 "Your.current.year.of.Study",
+                 "Marital.status",
+                 "Do.you.have.Depression.",
+                 "Do.you.have.Anxiety.",
+                 "Do.you.have.Panic.attack.",
+                 "Did.you.seek.any.specialist.for.a.treatment.")
+
+for(col in factor_cols){
+  if(col %in% names(data)){
+    data[[col]] <- as.factor(data[[col]])
+  }
+}
+
+
+if(is.factor(data$Do.you.have.Depression.)){
+  data$Do.you.have.Depression. <- factor(data$Do.you.have.Depression., levels = c("No", "Yes"))
+} else {
+  data$Do.you.have.Depression. <- factor(ifelse(data$Do.you.have.Depression. == 1, "Yes", "No"),
+                                         levels = c("No", "Yes"))
+}
+
+model_vars <- c("Do.you.have.Depression.", "Age", "What.is.your.course.",
+                "Your.current.year.of.Study", "What.is.your.CGPA.",
+                "Marital.status", "Do.you.have.Anxiety.", "Do.you.have.Panic.attack.")
+
+complete_rows <- complete.cases(data[, model_vars])
+
+model <- glm(`Do.you.have.Depression.` ~ Age + `What.is.your.course.` +
+               `Your.current.year.of.Study` + `What.is.your.CGPA.` +
+               Marital.status + `Do.you.have.Anxiety.` + `Do.you.have.Panic.attack.`,
+             data = data[complete_rows, ], family = binomial)
+
+summary(model)
+
+data$predicted_prob <- NA
+data$predicted_class <- NA
+
+data$predicted_prob[complete_rows] <- predict(model, type = "response")
+data$predicted_class[complete_rows] <- ifelse(data$predicted_prob[complete_rows] > 0.5, "Yes", "No")
+
+head(data[, c("Do.you.have.Depression.", "predicted_prob", "predicted_class")])
+
+
+if(!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(data[complete_rows, ], aes(x = Age, y = predicted_prob, color = `Do.you.have.Depression.`)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), se = TRUE, color = "blue") +
+  labs(title = "Logistic Regression: Predicted Probability of Depression",
+       x = "Age",
+       y = "Predicted Probability",
+       color = "Actual Depression") +
+  theme_minimal()
 
