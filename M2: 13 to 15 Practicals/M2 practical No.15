@@ -1,1 +1,34 @@
 
+student_data <- data.frame(
+  ID = 1:5,
+  Name = c("Alice", "Bob", "Charlie", "David", "Eva"),
+  Age = c(20, 22, 21, 23, 20),
+  Grade = c("A", "B", "A", "C", "B")
+)
+
+print(student_data)
+
+
+write.csv(student_data, file = "student_data.csv", row.names = FALSE)
+cat("Data exported to student_data.csv\n")
+
+
+if (!require(writexl)) install.packages("writexl")
+library(writexl)
+
+write_xlsx(student_data, path = "student_data.xlsx")
+cat("Data exported to student_data.xlsx\n")
+
+
+if (!require(gridExtra)) install.packages("gridExtra")
+if (!require(ggplot2)) install.packages("ggplot2")
+library(gridExtra)
+library(ggplot2)
+
+pdf("student_data.pdf", width = 8, height = 6)
+
+grid.table(student_data)
+
+dev.off()
+cat("Data exported to student_data.pdf\n")
+
