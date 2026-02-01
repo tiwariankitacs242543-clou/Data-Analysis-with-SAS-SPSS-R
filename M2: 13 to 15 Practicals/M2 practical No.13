@@ -1,1 +1,16 @@
+lm_model <- lm(Score ~ Study.Hours, data = student_data)
+
+summary(lm_model)
+
+
+ggplot(student_data, aes(x = Study.Hours, y = Score)) +
+  geom_point(color = "blue", size = 3) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(
+    title = "Linear Regression Analysis using lm()",
+    x = "Study Hours",
+    y = "Score (%)"
+  ) +
+  theme_minimal()
+
 
